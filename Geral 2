@@ -1,0 +1,1358 @@
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <chrono>
+using namespace std;
+
+
+#define FILENAME "NomeRG10.txt"
+//ter o nome aqui permite mudar o tamanho
+//em um lugar so e afetar o codigo todo
+
+struct NomeRGSeq{
+  string nome = "";
+  long int RG = 0;
+};
+//struct usada nas listas sequenciais
+
+struct NomeRGEnc{
+  string nome = "";
+  long int RG = 0;
+  struct NomeRGEnc *proximo = NULL;
+};
+//struct usada nas listas encadeadas
+//duplamente encadeada
+
+//============================================Funcoes
+
+int getTamanho()
+{
+  int tamanho=0;
+  string line;
+
+  ifstream flista(FILENAME);
+  if (flista.is_open())
+  {
+    while (getline(flista,line))
+    {
+      tamanho++;
+    }
+    flista.close();
+  }
+
+  else cout << "Unable to open file"; 
+
+  return tamanho;
+}
+
+void ImprimeSequencial(int tamanho, NomeRGSeq ListaSequencial[])
+{
+  int n=0;
+
+  while(n<tamanho)
+  {
+    cout << ListaSequencial[n].nome<<", "<<ListaSequencial[n].RG<<endl;
+    n++;
+  }
+}
+
+void ArmazenaSequencial(int *tamanho, NomeRGSeq ListaSequencial[])
+{
+  auto start = std::chrono::high_resolution_clock::now();
+  string line;
+  int pos, count = 0, copia = 0, comparacao = 0;
+
+  //metodo pra ler o arquivo
+  //e guardar na Struct Alocada
+
+  ifstream flista(FILENAME);
+  if (flista.is_open())
+  {
+    comparacao++;
+    while (getline(flista,line))
+    {
+      comparacao++;
+      pos = line.find(',');
+      ListaSequencial[count].nome = line.substr(0,pos);
+      //passa pro .nome tudo que ta antes da viRGula
+      copia++;
+      ListaSequencial[count].RG = stoi(line.substr(pos+1));
+      //passa pro .RG tudo que ta dps da viRGula
+      copia++;
+      count++;
+    }
+    flista.close();
+  }
+  else cout << "Unable to open file";
+
+  cout << "Lista Sequencial OK\n";
+  //ImprimeSequencial(*tamanho, ListaSequencial);
+
+	auto result = std::chrono::high_resolution_clock::now() - start;
+  long long microsegundos = std::chrono::duration_cast<std::chrono::microseconds>(result).count();
+  cout << "Tempo de Execução: " << microsegundos << " microsegundo(s)" << endl;
+	cout << "Foram feitas " << copia << " copia(as)" << endl;
+  cout << "Foram feitas " << comparacao << "  comparacao(oes)" << endl;
+
+}
+
+void EscreveArquivoSeq(int tamanho, NomeRGSeq ListaSequencial[])
+{
+
+  int n=0;
+
+  ofstream myfile ("ArquivoNovoSeq.txt");
+  if (myfile.is_open()){
+    while(n<tamanho)
+    {
+      myfile << ListaSequencial[n].nome << ", " <<ListaSequencial[n].RG<<endl;
+      n++;
+      
+    }
+    myfile.close();
+  }else cout << "Unable to open file"<<endl;
+
+}
+
+NomeRGSeq * InsereInicioSeq(int *tamanho, NomeRGSeq ListaSequencial[])
+{
+  //Pra inserir no inicio, precisa passar todo i pra i+1
+  
+
+  NomeRGSeq *novo = new NomeRGSeq, *aux = new NomeRGSeq;
+  int cont=0, copia=0, comparacao = 0;
+
+  cout << "\nInsira o nome:";
+  cin >> novo->nome;
+  cout << "Insira o RG:";
+  cin >> novo->RG;
+
+  auto start = std::chrono::high_resolution_clock::now();
+  //comeca aqui pra n contar o tempo de digitacao
+
+	aux->nome='0';
+  copia++;
+	aux->RG='0';
+  copia++;
+
+  while(cont<*tamanho+1)
+  {
+    comparacao++;
+    aux->nome=ListaSequencial[cont].nome;
+    copia++;
+		aux->RG=ListaSequencial[cont].RG;
+		copia++;
+
+    ListaSequencial[cont].nome=novo->nome;
+		copia++;
+    ListaSequencial[cont].RG=novo->RG;
+		copia++;
+
+    novo->nome=aux->nome;
+		copia++;
+    novo->RG=aux->RG;
+		copia++;
+    cont++;
+  }
+
+  
+  (*tamanho)++;
+  cout<<"Inserção Concluída no inicio da Lista Sequencial."<<endl;
+  cout<<"\nLista Sequencial Atualizada:"<<endl;
+  ImprimeSequencial(*tamanho, ListaSequencial);
+
+  auto result = std::chrono::high_resolution_clock::now() - start;
+  long long microsegundos = std::chrono::duration_cast<std::chrono::microseconds>(result).count();
+  cout << "Tempo de Execução: " << microsegundos << " microsegundo(s)" << endl;
+	cout << "Foram feitas " << copia << " copia(as)" << endl;
+  cout << "Foram feitas " << comparacao << "  comparacao(oes)" << endl;
+
+	return ListaSequencial;
+}
+
+NomeRGSeq * InsereFimSeq(int *tamanho, NomeRGSeq ListaSequencial[])
+{
+  //NomeRGSeq *novo = new NomeRGSeq, *aux = new NomeRGSeq;
+  int comparacao=0, copia = 0;
+
+  cout << "\nInsira o nome:";
+  cin >> ListaSequencial[*tamanho].nome;
+  cout << "Insira o RG:";
+  cin >> ListaSequencial[*tamanho].RG;
+  (*tamanho)++;
+
+  auto start = std::chrono::high_resolution_clock::now();
+
+  cout<<"Inserção Concluída no fim da Lista Sequencial."<<endl;
+  cout<<"\nLista Sequencial Atualizada:"<<endl;
+  ImprimeSequencial(*tamanho, ListaSequencial);
+
+  auto result = std::chrono::high_resolution_clock::now() - start;
+  long long microsegundos = std::chrono::duration_cast<std::chrono::microseconds>(result).count();
+  cout << "A execucao demorou " << microsegundos << " microsegundo(s)" << endl;
+	cout << "Foram feitas " << copia << " copia(as)" << endl;
+  cout << "Foram feitas " << comparacao << " comparacao(oes)" <<endl;
+
+	return ListaSequencial;
+}
+
+NomeRGSeq * InserirNSeq(int *tamanho, NomeRGSeq ListaSequencial[])
+{
+
+	NomeRGSeq *novo = new NomeRGSeq, *aux = new NomeRGSeq;
+  int cont, pos, copia = 0, comparacao = 0;
+
+	cout << "\nInsira a posicao em que deseja colocar o novo registro:";
+	cin >> pos;
+
+
+  cout << "\nInsira o nome:";
+  cin >> novo->nome;
+  cout << "Insira o RG:";
+  cin >> novo->RG;
+
+  auto start = std::chrono::high_resolution_clock::now();
+
+	aux->nome='0';
+  copia++;
+	aux->RG='0';
+	copia++;
+
+	cont=pos-1;
+	
+
+  while(cont<*tamanho+1){
+    comparacao++;
+    aux->nome=ListaSequencial[cont].nome;
+    copia++;
+		aux->RG=ListaSequencial[cont].RG;
+		copia++;
+
+    ListaSequencial[cont].nome=novo->nome;
+		copia++;
+		ListaSequencial[cont].RG=novo->RG;
+		copia++;
+
+    novo->nome=aux->nome;
+    copia++;
+		novo->RG=aux->RG;
+		copia++;
+    cont++;
+    }
+
+    (*tamanho)++;
+	
+  cout<<"Inserção Concluída na posição " << pos << " da Lista Sequencial."<<endl;
+  cout<<"\nLista Sequencial Atualizada:"<<endl;
+  ImprimeSequencial(*tamanho, ListaSequencial);
+	auto result = std::chrono::high_resolution_clock::now() - start;
+    long long microsegundos = std::chrono::duration_cast<std::chrono::microseconds>(result).count();
+    cout << "A execucao demorou " << microsegundos << " microsegundo(s)" << endl;
+	cout << "Foram feitas " << copia << " copia(as)" << endl;
+  cout << "Foram feitas " << comparacao << " comparacao(oes)" <<endl;
+  return ListaSequencial;
+}
+
+NomeRGSeq * RemoveInicioSeq(int *tamanho, NomeRGSeq ListaSequencial[])
+{
+  auto start = std::chrono::high_resolution_clock::now();
+  int cont=1, copia=0, comparacao=0;
+
+  while(cont <= *tamanho){
+    comparacao++;
+		if(cont == *tamanho)
+		{
+      comparacao++;
+			ListaSequencial[cont].nome=' ';
+      copia++;
+			ListaSequencial[cont].RG=' ';
+      copia++;
+		}
+		else
+		{
+			ListaSequencial[cont-1].nome=ListaSequencial[cont].nome;
+      copia++;
+			ListaSequencial[cont-1].RG=ListaSequencial[cont].RG;
+      copia++;
+    }
+		cont++;
+	}
+
+	(*tamanho)--;
+
+  cout<<"Remoção Concluída no Início da Lista Sequencial."<<endl;
+  cout<<"\nLista Sequencial Atualizada:"<<endl;
+  ImprimeSequencial(*tamanho, ListaSequencial);
+
+  auto result = std::chrono::high_resolution_clock::now() - start;
+    long long microsegundos = std::chrono::duration_cast<std::chrono::microseconds>(result).count();
+    cout << "A execucao demorou " << microsegundos << " microsegundo(s)" << endl;
+	cout << "Foram feitas " << copia << " copia(as)" << endl;
+  cout << "Foram feitas " << comparacao << " comparacao(oes)" <<endl;
+	return ListaSequencial;
+}
+
+NomeRGSeq * RemoveFimSeq(int *tamanho, NomeRGSeq ListaSequencial[])
+{
+  auto start = std::chrono::high_resolution_clock::now();
+
+  int copia = 0, comparacao = 0;
+  (*tamanho)--;
+
+  ListaSequencial[*tamanho].nome=' ';
+  copia++;
+	ListaSequencial[*tamanho].RG=' ';
+  copia++;
+
+  cout<<"Remoção Concluída no final da Lista Sequencial."<<endl;
+  cout<<"\nLista Sequencial Atualizada:"<<endl;
+  ImprimeSequencial(*tamanho, ListaSequencial);
+  auto result = std::chrono::high_resolution_clock::now() - start;
+    long long microsegundos = std::chrono::duration_cast<std::chrono::microseconds>(result).count();
+    cout << "A execucao demorou " << microsegundos << " microsegundo(s)" << endl;
+	cout << "Foram feitas " << copia << " copia(as)" << endl;
+  cout << "Foram feitas " << comparacao << " comparacao(oes)" <<endl;
+  return ListaSequencial;
+}
+
+NomeRGSeq * RemoveNSeq(int *tamanho, NomeRGSeq ListaSequencial[])
+{
+  int cont, n, copia = 0, comparacao = 0;
+
+	cout << "\nInsira a posicao que deseja remover da Lista Sequencial:";
+	cin >> n;
+
+  auto start = std::chrono::high_resolution_clock::now();
+
+
+	cont=n-1;
+
+  while(cont<=*tamanho-1){
+    comparacao++;
+		if(cont==*tamanho-1)
+		{
+      comparacao++;
+			ListaSequencial[cont].nome=' ';
+      copia++;
+			ListaSequencial[cont].RG=' ';
+      copia++;
+		}
+		else
+		{
+			ListaSequencial[cont].nome=ListaSequencial[cont+1].nome;
+			copia++;
+      ListaSequencial[cont].RG=ListaSequencial[cont+1].RG;
+      copia++;
+    }
+		cont++;
+	}
+
+	(*tamanho)--;
+	
+  cout<<"Remoção Concluída na posição "<< n <<" da Lista Sequencial"<<endl;
+  cout<<"\nLista Sequencial Atualizada:"<<endl;
+  ImprimeSequencial(*tamanho, ListaSequencial);
+
+  auto result = std::chrono::high_resolution_clock::now() - start;
+  long long microsegundos = std::chrono::duration_cast<std::chrono::microseconds>(result).count();
+  cout << "A execucao demorou " << microsegundos << " microsegundo(s)" << endl;
+	cout << "Foram feitas " << copia << " copia(as)" << endl;
+  cout << "Foram feitas " << comparacao << " comparacao(oes)" <<endl;
+
+  return ListaSequencial;
+}
+
+void ProcurarRGSeq(int *tamanho, NomeRGSeq ListaSequencial[])
+{
+  auto start = std::chrono::high_resolution_clock::now();
+
+  int RG;
+	int n=0, flag = 0, copia = 0, comparacao = 0;;
+
+	cout << "\nInsira o RG: ";
+	cin >> RG;
+
+	while(n< *tamanho){
+    comparacao++;
+		if(ListaSequencial[n].RG == RG)
+		{
+      comparacao++;
+			flag=1;
+			break;
+		}
+		n++;
+	}
+  if(flag==1)
+		cout << "\n" << n+1 << " - " << ListaSequencial[n].nome << ", " << ListaSequencial[n].RG << endl;
+	else if(flag==0)
+		cout << "\nNao foi possivel encontrar o RG desejado" << endl;
+
+	auto result = std::chrono::high_resolution_clock::now() - start;
+    long long microsegundos = std::chrono::duration_cast<std::chrono::microseconds>(result).count();
+    cout << "A execucao demorou " << microsegundos << " microsegundo(s)" << endl;
+	cout << "Foram feitas " << copia << " copia(as)" << endl;
+  cout << "Foram feitas " << comparacao << " comparacao(oes)" <<endl;
+}
+
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+void ImprimeEncadeada(NomeRGEnc *head)
+{
+  NomeRGEnc *rodando;
+
+	rodando=head->proximo;
+	while(rodando->nome != "")
+	{
+		cout << rodando->nome<<", "<<rodando->RG<<endl;
+		rodando=rodando->proximo;
+	}
+}
+
+void ArmazenaEncadeada(NomeRGEnc *head)
+{
+  auto start = std::chrono::high_resolution_clock::now();
+  int pos; //pega a posicao da viRGula
+	string line; //percorre o arquivo
+  int copia = 0, comparacao = 0;
+
+	NomeRGEnc *ListaEncadeada = new NomeRGEnc, *aux;
+	head->proximo=ListaEncadeada;
+  copia++;
+
+	ifstream myfile (FILENAME);
+	if (myfile.is_open())
+	{
+		while ( getline (myfile,line) )
+    {
+      comparacao++;
+			pos = line.find(',');
+      ListaEncadeada->nome = line.substr(0, pos);
+      copia++;
+      ListaEncadeada->RG = stoi(line.substr(pos+1));
+      copia++;
+			ListaEncadeada->proximo = new NomeRGEnc;
+      //Ponteiro da struct recebe o endereço do novo elemento da struct
+      copia++;
+      ListaEncadeada = ListaEncadeada->proximo;
+      //então o ponteiro atual aponta p/ o proximo nodo da fila
+      copia++;
+		}
+	  myfile.close();
+	}
+
+  cout << "Lista Encadeada OK\n";
+	//ImprimeEncadeada(head);
+
+  auto result = std::chrono::high_resolution_clock::now() - start;
+  long long microsegundos = std::chrono::duration_cast<std::chrono::microseconds>(result).count();
+  cout << "A execucao demorou " << microsegundos << " microsegundo(s)" << endl;
+	cout << "Foram feitas " << copia << " copia(as)" << endl;
+  cout << "Foram feitas " << comparacao << " comparacao(oes)" <<endl;
+}
+
+void EscreveArquivoEnc(NomeRGEnc *head)
+{
+  NomeRGEnc *rodando;
+  rodando=head->proximo;
+  
+  ofstream myfile ("ArquivoNovoEnc.txt");
+  if (myfile.is_open()){
+	  while(rodando->nome != "")
+	  {
+		  myfile << rodando->nome << ", " <<rodando->RG<<endl;
+		  rodando=rodando->proximo;
+	  }
+    myfile.close();
+  }else cout<<"Impossivel abrir o arquivo"<<endl;
+}
+
+void InserirInicioEnc(NomeRGEnc *head)
+{
+	NomeRGEnc *novo = new NomeRGEnc;
+  int copia = 0, comparacao = 0;
+
+  cout << "\nInsira o nome:";
+  cin >> novo->nome;
+  cout << "Insira o RG:";
+  cin >> novo->RG;
+
+  auto start = std::chrono::high_resolution_clock::now();
+
+  novo->proximo = head->proximo;
+  copia++;
+  head->proximo = novo;
+  copia++;
+
+  cout<<"Inserção Concluída no começo da Lista Encadeada"<<endl;
+
+  auto result = std::chrono::high_resolution_clock::now() - start;
+  long long microsegundos = std::chrono::duration_cast<std::chrono::microseconds>(result).count();
+  cout << "A execucao demorou " << microsegundos << " microsegundo(s)" << endl;
+	cout << "Foram feitas " << copia << " copia(as)" << endl;
+  cout << "Foram feitas " << comparacao << " comparacao(oes)" <<endl;
+
+  cout<<"\nLista Encadeada Atualizada:"<<endl;
+  ImprimeEncadeada(head); 	
+}
+
+void InseriFimEnc(NomeRGEnc *head)
+{
+  NomeRGEnc *novo = new NomeRGEnc, *lista;
+	int flag=0, copia = 0, comparacao = 0;
+
+  cout << "\nInsira o nome:";
+  cin >> novo->nome;
+  cout << "Insira o RG:";
+  cin >> novo->RG;
+
+  auto start = std::chrono::high_resolution_clock::now();
+
+	lista=head->proximo;
+  copia++;
+	
+	//enquanto não achar uma posicao onde o proximo item 
+  //possui nome vazio, continua rodando a lista
+  while(flag==0)
+	{
+    comparacao++;
+		 if(lista->proximo->nome == "")
+		{
+      comparacao++;
+			lista->proximo=novo;
+      copia++;
+			flag=1;
+		}
+		lista=lista->proximo;
+    copia++;
+	}
+  lista->proximo = new NomeRGEnc;
+  copia++;
+  cout<<"Inserção Concluída no fim da Lista Encadeada"<<endl;
+
+  auto result = std::chrono::high_resolution_clock::now() - start;
+  long long microsegundos = std::chrono::duration_cast<std::chrono::microseconds>(result).count();
+  cout << "A execucao demorou " << microsegundos << " microsegundo(s)" << endl;
+	cout << "Foram feitas " << copia << " copia(as)" << endl;
+  cout << "Foram feitas " << comparacao << " comparacao(oes)" <<endl;
+
+  cout<<"\nLista Encadeada Atualizada:"<<endl;
+  ImprimeEncadeada(head);
+}
+
+void InserirNEnc(NomeRGEnc *head)
+{
+	int cont=1, n, copia = 0, comparacao = 0;
+
+	cout << "\nInsira a posicao para o novo registro:";
+	cin >> n;
+
+
+	NomeRGEnc *ListaEncadeada = new NomeRGEnc, *lista, *penultimo, *rodando;
+
+  cout << "\nInsira o nome:";
+  cin >> ListaEncadeada->nome;
+  copia++;
+  cout << "Insira o RG:";
+  cin >> ListaEncadeada->RG;
+  copia++;
+
+  auto start = std::chrono::high_resolution_clock::now();
+
+	lista=head->proximo;
+  copia++;
+	penultimo=head;
+	copia++;
+
+	while((lista!=NULL) && (cont<n))
+	{
+    comparacao++;
+	  penultimo=lista;	
+    copia++;
+		lista=lista->proximo;
+		copia++;
+    cont++;
+	}
+	penultimo->proximo=ListaEncadeada;
+  copia++;
+	ListaEncadeada->proximo=lista;
+  copia++;
+  cout<<"Inserção Concluída na posição "<< n <<" da Lista Encadeada"<<endl;
+
+  auto result = std::chrono::high_resolution_clock::now() - start;
+  long long microsegundos = std::chrono::duration_cast<std::chrono::microseconds>(result).count();
+  cout << "A execucao demorou " << microsegundos << " microsegundo(s)" << endl;
+	cout << "Foram feitas " << copia << " copia(as)" << endl;
+  cout << "Foram feitas " << comparacao << " comparacao(oes)" <<endl;
+
+  cout<<"\nLista Encadeada Atualizada:"<<endl;
+  ImprimeEncadeada(head);
+}
+
+void RemoveInicioEnc(NomeRGEnc *head)
+{
+  auto start = std::chrono::high_resolution_clock::now();
+
+  int copia = 0, comparacao = 0;
+  NomeRGEnc *listaPessoasEnc = new NomeRGEnc, *lista;
+
+	lista=head->proximo;
+  copia++;
+	lista=lista->proximo;
+  copia++;
+	head->proximo=lista;
+  copia++;
+
+  cout<<"Remoção Concluída no inicio da Lista Encadeada"<<endl;
+
+  auto result = std::chrono::high_resolution_clock::now() - start;
+  long long microsegundos = std::chrono::duration_cast<std::chrono::microseconds>(result).count();
+  cout << "A execucao demorou " << microsegundos << " microsegundo(s)" << endl;
+	cout << "Foram feitas " << copia << " copia(as)" << endl;
+  cout << "Foram feitas " << comparacao << " comparacao(oes)" <<endl;
+
+  cout<<"\nLista Encadeada Atualizada:"<<endl;
+  ImprimeEncadeada(head);
+}
+
+void RemoveFimEnc(NomeRGEnc *head)
+{
+  auto start = std::chrono::high_resolution_clock::now();
+
+  int copia = 0, comparacao = 0;
+	NomeRGEnc *aux = head->proximo;
+  copia++;
+	
+	while(aux->proximo->proximo->proximo != NULL){
+    comparacao++;
+    aux = aux->proximo;
+    copia++;
+  }
+
+  delete aux->proximo;
+  copia++;
+  aux->proximo = new NomeRGEnc;
+  copia++;
+  cout<<"Remoção Concluída no fim da Lista Encadeada"<<endl;
+
+  auto result = std::chrono::high_resolution_clock::now() - start;
+  long long microsegundos = std::chrono::duration_cast<std::chrono::microseconds>(result).count();
+  cout << "A execucao demorou " << microsegundos << " microsegundo(s)" << endl;
+	cout << "Foram feitas " << copia << " copia(as)" << endl;
+  cout << "Foram feitas " << comparacao << " comparacao(oes)" <<endl;
+
+  cout<<"\nLista Encadeada Atualizada:"<<endl;
+  ImprimeEncadeada(head);
+}
+
+void RemoveNEnc(NomeRGEnc *head)
+{
+  int cont=0, n, copia = 0, comparacao = 0;
+
+	cout << "\nInsira a posicao que deseja remover da Lista Encadeada:";
+	cin >> n;
+
+  auto start = std::chrono::high_resolution_clock::now();
+
+	NomeRGEnc *listaPessoasEnc = new NomeRGEnc, *lista, *penultimo, *rodando;
+
+	lista=head->proximo;
+  copia++;
+	while((lista!=NULL) && (cont<n-1))
+	{
+    comparacao++;
+		penultimo=lista;
+    copia++;
+		lista=lista->proximo;
+		copia++;
+    cont++;
+	}
+
+	penultimo->proximo=lista->proximo;
+  copia++;
+
+  cout<<"Remoção Concluída na posição "<< n <<" da Lista Encadeada"<<endl;
+
+  auto result = std::chrono::high_resolution_clock::now() - start;
+  long long microsegundos = std::chrono::duration_cast<std::chrono::microseconds>(result).count();
+  cout << "A execucao demorou " << microsegundos << " microsegundo(s)" << endl;
+	cout << "Foram feitas " << copia << " copia(as)" << endl;
+  cout << "Foram feitas " << comparacao << " comparacao(oes)" <<endl;
+
+  cout<<"\nLista Encadeada Atualizada:"<<endl;
+  ImprimeEncadeada(head);
+
+}
+
+void ProcurarRGEnc(NomeRGEnc *head){
+  NomeRGEnc *rodando;
+	int RG;
+	int cont=0, flag=0, copia = 0, comparacao = 0;
+
+	cout << "\nInsira o RG: ";
+	cin >> RG;
+
+  auto start = std::chrono::high_resolution_clock::now();
+
+	rodando=head->proximo;
+  copia++;
+	
+	while(rodando->proximo!=NULL)
+	{
+    comparacao++;
+		if(rodando->RG==RG){
+			comparacao++;
+      flag=1;
+			break;
+		}
+		cont++;
+		rodando=rodando->proximo;
+    copia++;
+	}
+
+
+	if(flag==1)
+		cout << "\n" << cont+1 << " - " << rodando->nome<<", "<<rodando->RG<<endl;
+	else if(flag==0)
+		cout << "\nRG não encontrado." << endl;
+
+  auto result = std::chrono::high_resolution_clock::now() - start;
+  long long microsegundos = std::chrono::duration_cast<std::chrono::microseconds>(result).count();
+  cout << "A execucao demorou " << microsegundos << " microsegundo(s)" << endl;
+	cout << "Foram feitas " << copia << " copia(as)" << endl;
+  cout << "Foram feitas " << comparacao << " comparacao(oes)" <<endl;
+
+}
+
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//METODOS DE SELECAO
+void SelectionSortSequencial(int tamanho, NomeRGSeq ListaSequencial[]){
+
+  auto start = std::chrono::high_resolution_clock::now();
+	int contador1=0, contador2, posicao, Minimo, copia=0, comparacao=0;
+	NomeRGSeq *Passador = new NomeRGSeq;
+	Passador->nome="";
+	Passador->RG= 0;
+
+	cout << endl << "Selection Sort p/ Lista Sequencial:\n" << endl;
+
+  //ImprimeSequencial(tamanho, ListaSequencial);
+  //cout<<"\n"<<endl;
+
+	while(contador1 < tamanho){
+
+		Minimo=ListaSequencial[contador1].RG;
+    copia++;
+		contador2=contador1+1;
+		
+    while(contador2 < tamanho){
+			if(ListaSequencial[contador2].RG < Minimo){
+				Minimo = ListaSequencial[contador2].RG;
+        copia++;
+        comparacao++;
+				posicao = contador2;
+			}
+			contador2++;
+		}
+  
+
+	  Passador->nome = ListaSequencial[contador1].nome;
+	  Passador->RG = ListaSequencial[contador1].RG;
+    copia++;
+    //Passador recebe o nome e rg do antigo minimo
+		
+    ListaSequencial[contador1].nome = ListaSequencial[posicao].nome;
+	  ListaSequencial[contador1].RG = ListaSequencial[posicao].RG;
+    copia++;
+    //Guarda nome e rg do minimo atual
+
+	  ListaSequencial[posicao].nome = Passador->nome;
+	  ListaSequencial[posicao].RG = Passador->RG;
+    copia++;
+    //Passa o minimo pra sorted part of the vector
+		
+    
+    //ImprimeSequencial(tamanho, ListaSequencial);
+	  //cout<<"\n";
+	  contador1++;
+  }
+
+	auto result = std::chrono::high_resolution_clock::now() - start;
+  long long microsegundos = std::chrono::duration_cast<std::chrono::microseconds>(result).count();
+  cout << "A execucao demorou " << microsegundos << " microsegundo(s)" << endl;
+	cout << "Foram feitas " << copia << " copia(as)" << endl;
+	cout << "Foram feitas " << comparacao << " comparacao(oes)" << endl;
+}
+
+void SelectionSortEncadeada(int tamanho, NomeRGEnc *head){
+  
+  int i;
+  NomeRGEnc *rodando = head->proximo;
+  //rodando percorre o código SÓ
+  NomeRGEnc *Minimo = head->proximo;
+  //da o primeiro valor p/ o minimo
+  //é essa variavel que vai guardar o minimo
+  NomeRGEnc *Sorter = head->proximo;
+  //separa a parte organizada do vetor
+  NomeRGEnc Aux;
+  //move os dados do valor minimo
+
+
+  cout << endl << "Selection Sort p/ Lista Encadeada:\n" << endl;
+
+  ImprimeEncadeada(head);
+  cout<<"\n";
+  
+  for(i=0; i < tamanho; i++){
+    while(rodando->proximo != NULL){
+      //RODANDO PONTEIRO AZUL
+      if(rodando->RG < Minimo->RG){
+        //MINIMO PONTEIRO VERMELHO
+        Minimo = rodando;
+      }
+      rodando = rodando->proximo;
+    }
+
+    //O objetivo é não mexer nos ponteiros 
+    //mudando só as outras variaveis da struct
+    Aux.nome = Sorter->nome;
+    Aux.RG = Sorter->RG;
+    
+    Sorter->nome = Minimo->nome;
+    Sorter->RG = Minimo->RG;
+
+    Minimo->nome = Aux.nome;
+    Minimo->RG = Aux.RG;
+    //manda o minimo p/ parte organizada
+
+    Sorter = Sorter->proximo;
+    //Passa o sorter pra casa seguinte
+    rodando = Sorter;
+    ImprimeEncadeada(head);
+    cout<<"\n";
+
+  }
+}
+
+void InsertionSortSequencial(int tamanho, NomeRGSeq ListaSequencial[]){
+	auto start = std::chrono::high_resolution_clock::now();
+  int n=2, posicao, copia=0,comparacao=0;
+	NomeRGSeq aux2, aux1;
+	aux2.nome="";
+	aux2.RG=0;
+
+	cout << endl << "Insertion Sort P/ Lista Sequencial:\n" << endl;
+
+	if(ListaSequencial[0].RG > ListaSequencial[1].RG){
+		comparacao++;
+		swap(ListaSequencial[0], ListaSequencial[1]);
+    copia++;
+		
+		ImprimeSequencial(tamanho, ListaSequencial);
+	}
+
+	while (n < tamanho){
+		posicao = 0;
+
+		while(posicao < n){
+			if(ListaSequencial[n].RG < ListaSequencial[posicao].RG){
+        comparacao++;
+				aux2 = ListaSequencial[posicao];
+        copia++;
+			  ListaSequencial[posicao] = ListaSequencial[n];
+        copia++;
+
+				for(int j = posicao+1; j<=n; j++){
+					aux1 = ListaSequencial[j];
+					ListaSequencial[j] = aux2;
+					aux2 = aux1;
+          copia++;
+    		}
+
+				ImprimeSequencial(tamanho, ListaSequencial);
+				cout << endl;
+				break;
+			}
+			posicao++;
+		}
+		n++;
+	}
+  cout<<"Lista Ordenada:\n"<<endl;
+  ImprimeSequencial(tamanho, ListaSequencial);
+
+  auto result = std::chrono::high_resolution_clock::now() - start;
+  long long microsegundos = std::chrono::duration_cast<std::chrono::microseconds>(result).count();
+  cout << "A execucao demorou " << microsegundos << " microsegundo(s)" << endl;
+	cout << "Foram feitas " << copia << " copia(as)" << endl;
+	cout << "Foram feitas " << comparacao << " comparacao(oes)" << endl;
+
+}
+
+void BubbleSortSequencial(int tamanho, NomeRGSeq ListaSequencial[]){
+	auto start = std::chrono::high_resolution_clock::now();
+
+  int copia=0, comparacao=0, flag = 1, j = 0;
+	NomeRGSeq aux;
+
+  while (j <= tamanho){
+    j++;
+    while (flag==1){
+      flag=0;
+      for (int k=1; k < tamanho; k++){
+        if (ListaSequencial[k].RG < ListaSequencial[k-1].RG){
+					swap(ListaSequencial[k],ListaSequencial[k-1]);
+          copia++;
+					comparacao++;
+					ImprimeSequencial(tamanho, ListaSequencial);
+					cout << endl;
+					flag=1;
+        }
+			}
+    }
+	}
+  auto result = std::chrono::high_resolution_clock::now() - start;
+  long long microsegundos = std::chrono::duration_cast<std::chrono::microseconds>(result).count();
+  cout << "A execucao demorou " << microsegundos << " microsegundo(s)" << endl;
+	cout << "Foram feitas " << copia << " copia(as)" << endl;
+	cout << "Foram feitas " << comparacao << " comparacao(oes)" << endl;
+}
+
+void ShellSortSequencial(int tamanho, NomeRGSeq ListaSequencial[]){
+  auto start = std::chrono::high_resolution_clock::now();
+
+  int copia=0, comparacao=0, h=tamanho/2, cont, n, posicao;
+	NomeRGSeq aux2, aux1;
+
+	while(h >= 1){
+		if( h> 1){
+			for(int j = 0; j < h; j++){
+				n=j+h;
+				if(ListaSequencial[j].RG < ListaSequencial[n].RG){
+					swap(ListaSequencial[j], ListaSequencial[n]);
+					copia++;
+					comparacao++;
+				}
+			}
+		}
+		else{
+			if(ListaSequencial[0].RG > ListaSequencial[1].RG){
+				swap(ListaSequencial[0], ListaSequencial[1]);
+				copia++;
+				comparacao++;
+			}
+			n=2;
+			while (n < tamanho){
+				posicao=0;
+				while(posicao < n){
+					if(ListaSequencial[n].RG < ListaSequencial[posicao].RG){
+						aux2 = ListaSequencial[posicao];
+						copia++;
+						ListaSequencial[posicao] = ListaSequencial[n];
+						copia++;
+						for(int j = posicao+1; j <= n; j++){
+							aux1=ListaSequencial[j];
+							ListaSequencial[j]=aux2;
+							aux2=aux1;
+							copia++;
+						}
+						comparacao++;
+						break;
+					}
+					posicao++;
+				}
+				n++;
+			}
+			ImprimeSequencial(tamanho, ListaSequencial);
+		}
+		h=h-2;
+	}
+
+
+	auto result = std::chrono::high_resolution_clock::now() - start;
+  long long microsegundos = std::chrono::duration_cast<std::chrono::microseconds>(result).count();
+  cout << "A execucao demorou " << microsegundos << " microsegundo(s)" << endl;
+	cout << "Foram feitas " << copia << " copia(as)" << endl;
+	cout << "Foram feitas " << comparacao << " comparacao(oes)" << endl;
+
+}
+
+void swap(NomeRGSeq *a, NomeRGSeq *b)
+{
+  NomeRGSeq t = *a;
+  *a = *b;
+  *b = t;
+}
+int partition (NomeRGSeq ListaSequencial[], int low, int high)
+{
+  int pivot = high;
+  int i = low-1;  
+ 
+  for (int j = low; j < high; j++)
+  {
+    if (ListaSequencial[j].RG <= ListaSequencial[pivot].RG)
+    {
+      i++;    
+      swap(ListaSequencial[i], ListaSequencial[j]);
+    }
+  }
+
+  swap(ListaSequencial[i + 1], ListaSequencial[high]);
+  return i+1;
+}
+void QuickSortSequencial(NomeRGSeq ListaSequencial[], int low, int high, int *copias, int *comparacoes){
+
+  if (low < high)
+  {
+    
+    int pi = partition(ListaSequencial, low, high);
+ 
+  
+    QuickSortSequencial(ListaSequencial, low, pi-1, *copias, *comparacoes);
+    QuickSortSequencial(ListaSequencial, pi + 1, high, *copias, *comparacoes);
+  }
+
+
+}
+
+void Merge(NomeRGSeq ListaSequencial[], int low, int mid, int high,int *copias,int *comparacoes){
+  NomeRGSeq aux[high-low+1];
+  int i = low, j = mid+1;
+  int a=0;
+  
+
+  while(i <= mid && j <= high){
+    if(ListaSequencial[i].RG < ListaSequencial[j].RG){
+      aux[a]=ListaSequencial[i];
+      i++;
+    }else
+    { aux[a]=ListaSequencial[j];
+      j++;
+    }
+    a++;
+  }
+
+
+  while(i <= mid){
+    aux[a]=ListaSequencial[i];
+    i++;
+    a++;
+  }
+
+  while(j <= high){
+    aux[a]=ListaSequencial[j];
+    j++;
+    a++;
+  }
+
+  i=low;
+
+  for(int c=0; c < a; c++, i++){
+    ListaSequencial[i] = aux[c];
+  }
+}
+
+void MergeSortSequencial(NomeRGSeq ListaSequencial[], int low, int high,int *copias,int *comparacoes){
+
+  if (low < high)
+  {
+
+    int mid = (low + high) / 2;
+    
+    MergeSortSequencial(ListaSequencial, low, mid, *copias, *comparacoes);
+    MergeSortSequencial(ListaSequencial, mid + 1, high, *copias, *comparacoes);
+
+    Merge(ListaSequencial, low, mid, high);
+    
+  }
+}
+
+
+void BuscaBinariaSequencial(int tamanho, NomeRGSeq ListaSequencial[]){
+
+	auto start = std::chrono::high_resolution_clock::now();
+
+	int copia=0, comparacao=0, metade, RG, flag=0, j, n, tam=tamanho, k1, k2, indice=tam/2;
+	NomeRGSeq aux1[tamanho], aux2[tamanho];
+
+	for(j=0; j < tamanho; j++){
+		aux1[j] = ListaSequencial[j];
+	}
+
+	cout << endl << "Insira o RG que deseja procurar:";
+	cin >> RG;
+	cout << endl;
+	indice=tam/2;
+	
+	while(flag==0){
+		metade=(tam/2);
+		cout << metade << endl;
+		k1=0;
+		k2=0;
+		cout << "MEIO " << aux1[metade].nome << " - " << aux1[metade].RG << endl;
+
+		if(RG < aux1[metade].RG){
+			for(n = 0; n < tam; n++)
+        		if(aux1[n].RG < aux1[metade].RG){  
+            		aux2[k1++] = aux1[n];
+					comparacao++;
+					copia++;
+				}
+			comparacao++;
+			ImprimeSequencial(metade, aux2);
+			cout << endl;
+			indice=indice-(indice/2);
+		}
+		else if(RG > aux1[metade].RG){
+			for(n = metade; n < tam; n++)
+        		if(aux1[n].RG > aux1[metade].RG){ 
+            	aux2[k2++] = aux1[n];
+					copia++;
+					comparacao++;
+				}
+			comparacao++;
+			ImprimeSequencial(metade, aux2);
+			cout << endl;
+			
+		}
+		else{
+			cout << indice << " - " << aux1[metade].nome << ", " << aux1[metade].RG << endl; 
+			flag=1;
+		}
+
+		tam=tam/2;
+		for(j=0;j<tam;j++){
+			aux1[j]=aux2[j];
+		}
+	}
+	
+	auto result = std::chrono::high_resolution_clock::now() - start;
+  long long microsegundos = std::chrono::duration_cast<std::chrono::microseconds>(result).count();
+  cout << "A execucao demorou " << microsegundos << " microsegundo(s)" << endl;
+	cout << "Foram feitas " << copia << " copia(as)" << endl;
+	cout << "Foram feitas " << comparacao << " comparacao(oes)" << endl;
+}
+
+
+//====================================================
+
+int main() {
+  int opt = 1;
+  int flag1 = 0;//pra verificar se a memoria foi alocada
+  int flag2 = 0;//pra verificar se o array foi ordenado
+  //p/ busca binaria
+
+  int tamanho;
+  tamanho = getTamanho();
+  //pega o tamanho do PRIMEIRO ARQUIVO 
+  //pra usar na alocacao e impressao
+
+
+//=============SEQUENCIAL================
+  NomeRGSeq *ListaSequencial = new NomeRGSeq[tamanho*5];
+  //aloca memoria para ListaSequencial que é uma struct
+  //do tipo NomeRGSeq
+  //aloca mais pra garantir que as funções 1,2 e 10 vão funcionar, ESPECIALMENTE A 10
+
+//==========ENCADEADA========================
+  NomeRGEnc head, *ListaEncadeada;
+  //declarando os ponteiros de struct pra encadeada
+  
+//==============MAIN========================
+  while(opt != 0){
+  cout<<"\n\nEscolha uma operacao:"<<endl;
+  cout<<"1- Inserção de um nó no início da lista."<<endl;
+  cout<<"2- Inserção de um nó no fim da lista."<<endl;
+  cout<<"3- Inserção de um nó na posicao N."<<endl;
+  cout<<"4- retirar de um nó no início da lista."<<endl;
+  cout<<"5- retirar de um nó no fim da lista."<<endl;
+  cout<<"6- Retirar um nó na posição N"<<endl;
+  cout<<"7- Procurar um nó com o campo RG(Sequencial)"<<endl;
+  cout<<"8- Procurar um nó com o campo RG(Binaria)"<<endl;
+  cout<<"9- Mostrar a Lista na Tela"<<endl;
+  cout<<"10- Salvar lista em um arquivo"<<endl;
+  cout<<"11- Ler lista de um novo arquivo"<<endl;
+  cout<<"12- Selection Sort"<<endl;
+  cout<<"13- Insertion Sort"<<endl;
+  cout<<"14- Bubble Sort"<<endl;
+  cout<<"15- Shell Sort"<<endl;
+  cout<<"16- Quick Sort"<<endl;
+  cout<<"17- Merge Sort"<<endl;
+  cout<<"0- Sair do sistema"<<endl;
+  cin >> opt;
+
+  switch(opt){
+    case 1:
+    if(flag1 == 0){
+      cout << "Arquivo não armazenado. Execute a opção 11." << endl;
+      break;
+    }
+    ListaSequencial = InsereInicioSeq(&tamanho, ListaSequencial);
+    InserirInicioEnc(&head);
+    break;
+
+    case 2:
+    if(flag1 == 0){
+      cout << "Arquivo não armazenado. Execute a opção 11." << endl;
+      break;
+    }
+    ListaSequencial = InsereFimSeq(&tamanho, ListaSequencial);
+    InseriFimEnc(&head);
+    break;
+
+    case 3:
+    if(flag1 == 0){
+      cout << "Arquivo não armazenado. Execute a opção 11." << endl;
+      break;
+    }
+    ListaSequencial = InserirNSeq(&tamanho, ListaSequencial);
+    InserirNEnc(&head);
+    break;
+
+    case 4:
+    if(flag1 == 0){
+      cout << "Arquivo não armazenado. Execute a opção 11." << endl;
+      break;
+    }
+    ListaSequencial = RemoveInicioSeq(&tamanho, ListaSequencial);
+    RemoveInicioEnc(&head);
+    break;
+
+    case 5:
+    if(flag1 == 0){
+      cout << "Arquivo não armazenado. Execute a opção 11." << endl;
+      break;
+    }
+    ListaSequencial = RemoveFimSeq(&tamanho, ListaSequencial);
+    RemoveFimEnc(&head);
+    break;
+
+    case 6:
+    if(flag1 == 0){
+      cout << "Arquivo não armazenado. Execute a opção 11." << endl;
+      break;
+    }
+    ListaSequencial = RemoveNSeq(&tamanho, ListaSequencial);
+    RemoveNEnc(&head);
+    break;
+
+    case 7:
+    if(flag1 == 0){
+      cout << "Arquivo não armazenado. Execute a opção 11." << endl;
+      break;
+    }
+    ProcurarRGSeq(&tamanho, ListaSequencial);
+    ProcurarRGEnc(&head);
+    break;
+
+    case 8:
+    if(flag1 == 0){
+      cout << "Arquivo não armazenado. Execute a opção 11." << endl;
+      break;
+    }
+    if(flag2 == 0){
+      cout <<"Arquivo não Ordenado. Execute uma ordenação."<<endl;
+      break;
+    }
+    BuscaBinariaSequencial(tamanho, ListaSequencial);
+    break;
+
+    case 9:
+    if(flag1 == 0){
+      cout << "Arquivo não armazenado. Execute a opção 11." << endl;
+      break;
+    }
+    cout<<"Lista Sequencial:"<<endl;
+    ImprimeSequencial(tamanho, ListaSequencial);
+    //cout<<"\nLista Encadeada:"<<endl;
+    //ImprimeEncadeada(&head); 
+    break;
+
+    case 10: 
+    if(flag1 == 0){
+      cout << "Arquivo não armazenado. Execute a opção 11." << endl;
+      break;
+    }
+    cout << "PRONTO";
+    break;
+
+    case 11:
+    ArmazenaSequencial(&tamanho, ListaSequencial);
+    ArmazenaEncadeada(&head);
+    flag1 = 1;
+    break;
+
+    case 12:
+    if(flag1 == 0){
+      cout << "Arquivo não armazenado. Execute a opção 11." << endl;
+      break;
+    }
+    SelectionSortSequencial(tamanho, ListaSequencial);
+    //SelectionSortEncadeada(tamanho, &head);
+    flag2 = 1;
+    break;
+
+    case 13:
+    if(flag1 == 0){
+      cout << "Arquivo não armazenado. Execute a opção 11." << endl;
+      break;
+    }
+    InsertionSortSequencial(tamanho, ListaSequencial);
+    flag2 = 1;
+    break;
+
+    case 14:
+    if(flag1 == 0){
+      cout << "Arquivo não armazenado. Execute a opção 11." << endl;
+      break;
+    }
+    BubbleSortSequencial(tamanho, ListaSequencial);
+    flag2 = 1;
+    break;
+
+    case 15:
+    if(flag1 == 0){
+      cout << "Arquivo não armazenado. Execute a opção 11." << endl;
+      break;
+    }
+    ShellSortSequencial(tamanho, ListaSequencial);
+    flag2 = 1;
+    break;
+
+    case 16:{
+    if(flag1 == 0){
+      cout << "Arquivo não armazenado. Execute a opção 11." << endl;
+      break;
+    }
+    auto start = std::chrono::high_resolution_clock::now();
+    //int copia=0, comparacao=0;
+    QuickSortSequencial(ListaSequencial, 0, tamanho-1);
+    flag2 = 1;
+    auto result = std::chrono::high_resolution_clock::now() - start;
+    long long microsegundos = std::chrono::duration_cast<std::chrono::microseconds>(result).count();
+    cout << "A execucao demorou " << microsegundos << " microsegundo(s)" << endl;
+    break;
+    }
+    
+
+    case 17:
+    if(flag1 == 0){
+      cout << "Arquivo não armazenado. Execute a opção 11." << endl;
+      break;
+    }
+    MergeSortSequencial(ListaSequencial, 0, tamanho-1);
+    flag2 = 1;
+    break;
+
+    case 0:
+    cout<<"Saindo..."<<endl;
+    //system("clear");
+    return 0;
+    break;
+    
+    default:
+    cout<<"Opção Invalida."<<endl;
+    break;
+  }
+  }
+}
